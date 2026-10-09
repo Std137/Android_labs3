@@ -8,8 +8,8 @@ public class TouchRotate: MonoBehaviour
     public Transform target;
 
     [Header("Параметры вращения")]
-    public float horizontalSpeed = 120f;
-    public float verticalSpeed = 90f;
+    public float horizontalSpeed = 13f;
+    public float verticalSpeed = 5f;
 
     private float maxPitch = 80f;
     private float minPitch = 80f;         
