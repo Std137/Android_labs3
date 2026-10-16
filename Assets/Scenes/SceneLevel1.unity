@@ -1699,7 +1699,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwipeDetect
   cameraOrbit: {fileID: 1188476121}
-  level: {fileID: 0}
 --- !u!114 &835367579
 MonoBehaviour:
   m_ObjectHideFlags: 0

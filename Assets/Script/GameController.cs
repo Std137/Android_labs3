@@ -15,8 +15,8 @@ public class GameController : MonoBehaviour
     {
         mainMenuPanels.SetActive(true);
         Time.timeScale = 0f;
-        Screen.fullScreen = true;   
-        HideSystemBars();
+        Screen.fullScreen = true;
+        GameController.HideSystemBars();
     }
 
     public void onClickBtnExitYes()
@@ -59,18 +59,10 @@ public class GameController : MonoBehaviour
         
     }
 
-    void Update()
-    {
-        if (Time.unscaledTime < _nextCheck) return;
-        _nextCheck = Time.unscaledTime + 5f;
-
-        HideSystemBars();
-    }
 
     void OnApplicationFocus(bool hasFocus)
     {
-        if (hasFocus)
-            Invoke(nameof(HideSystemBars), 0.2f);
+        GameController.HideSystemBars();
     }
 
     public static void HideSystemBars()
