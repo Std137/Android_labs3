@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class Cell
 {
@@ -30,8 +23,6 @@ public class LelelFieldGenerate
     private readonly int width = 6;
     private readonly int height = 6;
     private List<List<Cell>> level, fullLevel;
-    private int endX = -1;
-    private int endY = -1;
     private System.Random random = new System.Random();
     private string easteregg = "К Р  Е  Х  Т  А В  И  Т  А  Л  И Й";
     
@@ -134,8 +125,6 @@ public class LelelFieldGenerate
                     level[x][y].Down = false;
                 else if (dx == -1)    
                     level[newX][y].Down = false;
-                endX = newX; 
-                endY = newY;
                 lfGenerate(newX, newY);
             }
         }

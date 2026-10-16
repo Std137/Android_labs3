@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+
 
 public class TouchRotate: MonoBehaviour
 {
@@ -8,9 +7,10 @@ public class TouchRotate: MonoBehaviour
     public Transform target;
 
     [Header("Параметры вращения")]
-    public float horizontalSpeed = 13f;
+    public float horizontalSpeed = 8f;
     public float verticalSpeed = 5f;
 
+    // Ограничение угла наклона
     private float maxPitch = 80f;
     private float minPitch = 80f;         
 

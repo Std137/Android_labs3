@@ -1,12 +1,5 @@
-using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.EnhancedTouch;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
+
 
 public class GameController : MonoBehaviour
 {
@@ -14,28 +7,16 @@ public class GameController : MonoBehaviour
     public GameObject mainMenuPanels;
     public GameObject exitPanel;
     public GameObject aboutPanel;
-    public GameObject originaWall;
-    public GameObject touchJoystick;
+    public LevelController LevelController;
 
-    private bool isMobile = true;
-    private LelelFieldGenerate lg = new LelelFieldGenerate();
-
-    private void CopyWall(int x, int y, bool rotate)
-    {
-        var localScaleX = (rotate) ? 10 : 1;
-        var localScaleZ = (rotate) ? 1 : 10;
-        var localPositionX = x * 10.0f;
-        var localPositionY = y * 10.0f;
-        GameObject wall = Instantiate(originaWall);
-        wall.transform.localScale = new Vector3(localScaleX, 20, localScaleZ);
-        wall.transform.position = new Vector3(localPositionX, 10.0f, localPositionY);
-    }
+    private float _nextCheck;      //Таймер спрятать панель навигации
 
     public void Start()
     {
         mainMenuPanels.SetActive(true);
         Time.timeScale = 0f;
-        if (Application.platform == RuntimePlatform.Android) isMobile = true;
+        Screen.fullScreen = true;   
+        HideSystemBars();
     }
 
     public void onClickBtnExitYes()
@@ -73,43 +54,65 @@ public class GameController : MonoBehaviour
 
     public void onClickBtnStartGame()
     {
-        StartAction();
-        Time.timeScale = 1f;
         mainMenuPanels.SetActive(false);
-        if (isMobile) touchJoystick.SetActive(true);
+        LevelController.StartLevel();
+        
     }
-    
-    public void StartAction() {
-        Quaternion rotateWall = Quaternion.Euler(0f, 90f, 0f);
-        Quaternion norotateWall = Quaternion.Euler(0f, 0f, 0f);
-        GameObject cloneWall;
-        var originalWall = GameObject.FindGameObjectWithTag("WallTemplate");
-        var originalLetter = GameObject.FindGameObjectWithTag("LetterTemplate");
-        var levelObj = GameObject.FindGameObjectWithTag("LevelObj").transform;
 
-        for (int x = 0; x < 7; x++) {
-            for (int y = 0; y < 7; y++)
+    void Update()
+    {
+        if (Time.unscaledTime < _nextCheck) return;
+        _nextCheck = Time.unscaledTime + 5f;
+
+        HideSystemBars();
+    }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            Invoke(nameof(HideSystemBars), 0.2f);
+    }
+
+    public static void HideSystemBars()
+    {
+ #if UNITY_ANDROID && !UNITY_EDITOR
+        int apiLevel = new AndroidJavaClass("android.os.Build$VERSION")
+            .GetStatic<int>("SDK_INT");
+
+        if (apiLevel >= 30)
+        {
+            // Android 11+
+            using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            using (var window = activity.Call<AndroidJavaObject>("getWindow"))
+            using (var decorView = window.Call<AndroidJavaObject>("getDecorView"))
             {
-                if (lg.GetRight(x, y)) 
+                using (var controller = decorView.Call<AndroidJavaObject>("getWindowInsetsController"))
                 {
-                    cloneWall = Object.Instantiate(originalWall, new Vector3((-30f+10*y), 10f, (35f-10*x)), norotateWall);
-                    cloneWall.transform.SetParent(levelObj, worldPositionStays: true);
-                }
-                if (lg.GetDown(x, y))
-                {
+                    if (controller == null) return;
 
-                    cloneWall = Object.Instantiate(originalWall, new Vector3((-35f + 10 * y), 10f, (30f - 10 * x)), rotateWall);
-                    cloneWall.transform.SetParent(levelObj, worldPositionStays: true);
-                }
-                var txtField = lg.GetLetter(x, y);
-                if ((txtField != " "))
-                {
-                    var cloneLetter = Object.Instantiate(originalLetter, new Vector3((-35f + 10 * y), 3f, (35f - 10 * x)), norotateWall);
-                    cloneLetter.transform.SetParent(levelObj, worldPositionStays: true);
-                    var tmph = cloneLetter.GetComponent<TMP_Text>();
-                    if (tmph != null) tmph.text = txtField;
+                    controller.Call("setSystemBarsBehavior", 2);
+                    controller.Call("hide", 7);
                 }
             }
         }
+        else
+        {
+            using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            using (var window = activity.Call<AndroidJavaObject>("getWindow"))
+            using (var decorView = window.Call<AndroidJavaObject>("getDecorView"))
+            {
+                decorView.Call("setSystemUiVisibility",
+                    0x00000002 |  
+                    0x00000004 |  
+                    0x00000008 |  
+                    0x00001000 |  
+                    0x00000100 |  
+                    0x00000200 |  
+                    0x00000100);  
+            }
+        }
+#endif
     }
 }
